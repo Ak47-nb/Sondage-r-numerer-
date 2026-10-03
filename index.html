@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SagaVibes - Portail d'Expertise</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --accent: #059669;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+        }
+
+        .mobile-frame {
+            width: 100%;
+            max-width: 420px;
+            background-color: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            min-height: 680px;
+        }
+
+        /* En-tête clair et moderne */
+        .app-bar {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            padding: 24px 20px;
+            text-align: center;
+        }
+
+        .app-bar h1 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            margin-bottom: 4px;
+        }
+
+        .app-bar p {
+            font-size: 0.82rem;
+            color: #94a3b8;
+        }
+
+        .content-body {
+            padding: 24px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* Formulaire */
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            outline: none;
+            background: #f8fafc;
+            color: var(--text-main);
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Grille des opérateurs avec les VRAIES COULEURS DE MARQUE */
+        .wallet-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .wallet-option {
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 14px 10px;
+            text-align: center;
+            cursor: pointer;
+            background: #ffffff;
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .wallet-option:hover {
+            border-color: #cbd5e1;
+            transform: translateY(-2px);
+        }
+
+        /* Vrais styles et couleurs officielles des logos Mobile Money */
+        .logo-badge {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 0.8rem;
+            letter-spacing: -0.5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        /* 1. Wave (Bleu/Turquoise officiel) */
+        .wallet-option.wave-opt .logo-badge { background: #161a2c; color: #1de9b6; border: 2px solid #1de9b6; }
+        .wallet-option.wave-opt.selected { border-color: #1de9b6; background-color: rgba(29, 233, 182, 0.08); }
+
+        /* 2. MTN MoMo (Jaune/Noir officiel) */
+        .wallet-option.mtn-opt .logo-badge { background: #ffcc00; color: #000000; border: 2px solid #e5b800; }
+        .wallet-option.mtn-opt.selected { border-color: #ffcc00; background-color: rgba(255, 204, 0, 0.12); }
+
+        /* 3. Orange Money (Orange officiel) */
+        .wallet-option.orange-opt .logo-badge { background: #ff6600; color: #ffffff; border: 2px solid #e65c00; }
+        .wallet-option.orange-opt.selected { border-color: #ff6600; background-color: rgba(255, 102, 0, 0.08); }
+
+        /* 4. Moov Money (Bleu/Orange officiel) */
+        .wallet-option.moov-opt .logo-badge { background: #004b93; color: #ffffff; border: 2px solid #ff6600; }
+        .wallet-option.moov-opt.selected { border-color: #004b93; background-color: rgba(0, 75, 147, 0.08); }
+
+        .wallet-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* Bouton Principal */
+        .btn-main {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 14px;
+            font-size: 0.98rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            margin-top: auto;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-main:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-main:active {
+            transform: scale(0.98);
+        }
+
+        /* Interface Quiz */
+        .quiz-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            width: 100%;
+            height: 100%;
+            background: var(--accent);
+            transition: width 1s linear;
+        }
+
+        .question-title {
+            font-size: 1.12rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            color: var(--text-main);
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .choice-btn {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            padding: 15px 16px;
+            border-radius: 14px;
+            text-align: left;
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .choice-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.04);
+        }
+
+        .choice-btn.correct {
+            border-color: #059669;
+            background-color: #ecfdf5;
+            color: #065f46;
+        }
+
+        .choice-btn.wrong {
+            border-color: #dc2626;
+            background-color: #fef2f2;
+            color: #991b1b;
+        }
+
+        /* Écran de Fin */
+        .result-box {
+            text-align: center;
+            padding: 10px 0;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .points-badge {
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
+        .cash-equivalent {
+            font-size: 1.05rem;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        .info-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: left;
+            margin-bottom: 24px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-frame">
+        <!-- En-tête -->
+        <div class="app-bar">
+            <h1>SagaVibes Expert</h1>
+            <p>Session de Validation & Reversement</p>
+        </div>
+
+        <div class="content-body">
+            
+            <!-- CONNEXION / FORMULAIRE -->
+            <div id="loginScreen" class="screen active">
+                <div class="input-group" style="margin-top: 5px;">
+                    <label>Nom ou Identifiant</label>
+                    <input type="text" id="pPseudo" class="input-field" autocomplete="off">
+                </div>
+
+                <div class="input-group">
+                    <label>Numéro de Téléphone</label>
+                    <input type="tel" id="pPhone" class="input-field" autocomplete="off">
+                </div>
+
+                <div class="input-group">
+                    <label>Opérateur de Paiement</label>
+                    <div class="wallet-grid">
+                        <div class="wallet-option wave-opt" onclick="selectWallet('Wave', this)">
+                            <div class="logo-badge">WAVE</div>
+                            <span class="wallet-name">Wave</span>
+                        </div>
+                        <div class="wallet-option mtn-opt" onclick="selectWallet('MTN MoMo', this)">
+                            <div class="logo-badge">MTN</div>
+                            <span class="wallet-name">MTN Money</span>
+                        </div>
+                        <div class="wallet-option orange-opt" onclick="selectWallet('Orange Money', this)">
+                            <div class="logo-badge">OM</div>
+                            <span class="wallet-name">Orange Money</span>
+                        </div>
+                        <div class="wallet-option moov-opt" onclick="selectWallet('Moov Cash', this)">
+                            <div class="logo-badge">MOOV</div>
+                            <span class="wallet-name">Moov Money</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-main" onclick="startAppQuiz()">Commencer la session ➔</button>
+            </div>
+
+            <!-- QUESTIONNAIRE -->
+            <div id="quizScreen" class="screen">
+                <div class="quiz-top-bar">
+                    <span id="qProgress">Niveau 1/5</span>
+                    <span id="userTag" style="color:var(--primary);">Connecté</span>
+                    <span id="livePoints">0 pts</span>
+                </div>
+
+                <div class="progress-bar-bg">
+                    <div id="progressBar" class="progress-bar-fill"></div>
+                </div>
+
+                <h2 id="qText" class="question-title">Chargement de la question...</h2>
+
+                <div id="optionsGroup" class="options-container"></div>
+            </div>
+
+            <!-- RÉSULTAT -->
+            <div id="endScreen" class="screen result-box">
+                <h2>Session Terminée ! 🎉</h2>
+                <p style="color: var(--text-muted);">Score total obtenu :</p>
+                <div id="finalPoints" class="points-badge">0 pts</div>
+                <div id="cashVal" class="cash-equivalent">Équivalent : ~ 0 FCFA</div>
+                
+                <div class="info-box">
+                    <strong style="color:var(--text-main); display:block; margin-bottom:4px;">Statut du virement :</strong>
+                    <span id="payoutInfo">Traitement en cours...</span>
+                </div>
+
+                <button class="btn-main" onclick="resetApp()">Nouvelle session</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+               const expertMissions = [
+            {
+                question: "Quel accessoire de mode et de protection solaire est devenu un incontournable du look urbain tendance ? ",
+                options: [
+                    "Les lunettes de soleil de créateurs ou aux montures rétro",
+                    "Le masque de plongée sous-marine",
+                    "Le casque de chantier fluorescent",
+                    "Les gants de cuisine en silicone"
+                ],
+                answer: 0
+            },
+            {
+                question: "Quelle boisson locale rafraîchissante, préparée à partir de fleurs d'hibiscus séchées, est très populaire dans les rues d'Afrique de l'Ouest ?",
+                options: [
+                    "Le bissap",
+                    "Le café expresso serré",
+                    "Le thé glacé à la pêche en canette",
+                    "Le sirop de menthe à l'eau gazeuse"
+                ],
+                answer: 0
+            },
+            {
+                question: "Dans le domaine de la beauté et des soins corporels, quel ingrédient naturel est particulièrement recherché pour hydrater et nourrir la peau et les cheveux crépus ?",
+                options: [
+                    "Le beurre de karité",
+                    "L'eau de Javel diluée",
+                    "L'huile de moteur usagée",
+                    "Le vinaigre blanc ménager"
+                ],
+                answer: 0
+            },
+            {
+                question: "Quel est l'intérêt d'un marché de quartier ou d'un marché de gros (comme celui de ምር / Adjamé ou Abobo) pour les commerçants du quotidien ?",
+                options: [
+                    "S'approvisionner en marchandises et denrées en grande quantité à prix négociés",
+                    "Y garer gratuitement des hélicoptères de transport",
+                    "Louer des salles de cinéma privatives",
+                    "Y passer des examens médicaux de routine"
+                ],
+                answer: 0
+            },
+            {
+                question: "Quel type de séance photo fait un carton dans les boutiques et studios urbains pour marquer les grands événements (mariages, anniversaires, remises de diplômes) ?",
+                options: [
+                    "Le shooting en studio avec décors thématiques et retouches professionnelles",
+                    "La photo instantanée floue prise en cachette dans le noir",
+                    "Le scan d'empreintes digitales sur papier thermique",
+                    "Le tirage unique en noir et blanc de type radiographie"
+                ],
+                answer: 0
+            }
+        ];
+
+
+        let currentIdx = 0;
+        let totalPoints = 0;
+        let countdownTimer;
+        let timeRemaining = 15;
+        let selectedWalletType = "";
+
+        const loginScreen = document.getElementById('loginScreen');
+        const quizScreen = document.getElementById('quizScreen');
+        const endScreen = document.getElementById('endScreen');
+
+        const pPseudo = document.getElementById('pPseudo');
+        const pPhone = document.getElementById('pPhone');
+        const userTag = document.getElementById('userTag');
+        
+        const qProgress = document.getElementById('qProgress');
+        const livePoints = document.getElementById('livePoints');
+        const progressBar = document.getElementById('progressBar');
+        const qText = document.getElementById('qText');
+        const optionsGroup = document.getElementById('optionsGroup');
+        const finalPoints = document.getElementById('finalPoints');
+        const cashVal = document.getElementById('cashVal');
+        const payoutInfo = document.getElementById('payoutInfo');
+
+        function selectWallet(walletName, element) {
+            document.querySelectorAll('.wallet-option').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedWalletType = walletName;
+        }
+
+        function startAppQuiz() {
+            const name = pPseudo.value.trim();
+            const phone = pPhone.value.trim();
+
+            if (!name) {
+                alert("Veuillez entrer votre nom ou identifiant.");
+                pPseudo.focus();
+                return;
+            }
+            if (!phone) {
+                alert("Veuillez entrer votre numéro de téléphone.");
+                pPhone.focus();
+                return;
+            }
+            if (!selectedWalletType) {
+                alert("Veuillez sélectionner un opérateur de paiement.");
+                return;
+            }
+
+            userTag.textContent = `👤 ${name}`;
+            currentIdx = 0;
+            totalPoints = 0;
+
+            loginScreen.classList.remove('active');
+            quizScreen.classList.add('active');
+            loadNextMission();
+        }
+
+        function loadNextMission() {
+            clearInterval(countdownTimer);
+            if (currentIdx >= expertMissions.length) {
+                showResultsPanel();
+                return;
+            }
+
+            const currentMission = expertMissions[currentIdx];
+            qProgress.textContent = `Niveau ${currentIdx + 1}/${expertMissions.length}`;
+            livePoints.textContent = `${totalPoints} pts`;
+            qText.textContent = currentMission.question;
+
+            optionsGroup.innerHTML = '';
+            currentMission.options.forEach((optText, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.textContent = optText;
+                btn.onclick = () => validateChoice(idx, currentMission.answer);
+                optionsGroup.appendChild(btn);
+            });
+
+            startMissionTimer();
+        }
+
+        function startMissionTimer() {
+            timeRemaining = 15;
+            progressBar.style.width = '100%';
+            const stepValue = 100 / 15;
+
+            countdownTimer = setInterval(() => {
+                timeRemaining--;
+                progressBar.style.width = `${timeRemaining * stepValue}%`;
+
+                if (timeRemaining <= 0) {
+                    clearInterval(countdownTimer);
+                    handleTimeoutMission();
+                }
+            }, 1000);
+        }
+
+        function validateChoice(selectedIndex, correctIndex) {
+            clearInterval(countdownTimer);
+            const choiceButtons = optionsGroup.getElementsByClassName('choice-btn');
+
+            Array.from(choiceButtons).forEach(b => b.disabled = true);
+
+            if (selectedIndex === correctIndex) {
+                choiceButtons[selectedIndex].classList.add('correct');
+                totalPoints += 400;
+            } else {
+                choiceButtons[selectedIndex].classList.add('wrong');
+                choiceButtons[correctIndex].classList.add('correct');
+            }
+
+            livePoints.textContent = `${totalPoints} pts`;
+
+            setTimeout(() => {
+                currentIdx++;
+                loadNextMission();
+            }, 1400);
+        }
+
+        function handleTimeoutMission() {
+            const choiceButtons = optionsGroup.getElementsByClassName('choice-btn');
+            const correctIndex = expertMissions[currentIdx].answer;
+            
+            Array.from(choiceButtons).forEach(b => b.disabled = true);
+            choiceButtons[correctIndex].classList.add('correct');
+            
+            setTimeout(() => {
+                currentIdx++;
+                loadNextMission();
+            }, 1400);
+        }
+
+        function showResultsPanel() {
+            quizScreen.classList.remove('active');
+            endScreen.classList.add('active');
+            
+            finalPoints.textContent = `${totalPoints} pts`;
+            const estimatedCfa = totalPoints * 3; 
+            cashVal.textContent = `Équivalent : ~ ${estimatedCfa} FCFA`;            const phoneNum = pPhone.value.trim();
+            payoutInfo.textContent = `Demande de transfert enregistrée vers votre compte ${selectedWalletType} (${phoneNum}).`;
+        }
+
+        function resetApp() {
+            endScreen.classList.remove('active');
+            loginScreen.classList.add('active');
+        }
+    </script>
+</body>
+</html>
+
+      
